@@ -2,6 +2,7 @@
 
 Have any ArchWiki article available instantly
 
+![preview](./preview.gif)
 
 ## Dependencies
 This plugin uses the CLI tool [archwiki-rs](https://github.com/jackboxx/archwiki-rs). 
