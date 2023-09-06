@@ -19,20 +19,6 @@ function Archwiki.select_page_from_local(extra_args, on_err)
 end
 
 ---comment
-function Archwiki.update_category_from_local()
-    local exit, out = utils.execute_command("archwiki-rs list-categories")
-    if (exit == false) then
-        print("failed to run `archwiki-rs` command")
-        return
-    end
-
-    local categories = utils.split(out, "\n")
-    utils.select_item(categories, function(category)
-        Archwiki.update_category(category)
-    end)
-end
-
----comment
 ---@param page string
 ---@param extra_args string?
 ---@param on_err function?
@@ -69,17 +55,6 @@ function Archwiki.read_page_into_buffer(page, extra_args, on_err)
     vim.cmd("b" .. buf)
 
     return buf
-end
-
----comment
----@param category string
-function Archwiki.update_category(category)
-    local suc = os.execute("archwiki-rs update-category " .. category)
-    if (suc) then
-        print("updating category")
-    else
-        print("failed to update category")
-    end
 end
 
 return Archwiki
