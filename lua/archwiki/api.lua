@@ -15,7 +15,6 @@ function Archwiki.select_page_from_local(extra_args, on_err, on_select_override)
 
     local pages = utils.split(out, "\n")
     utils.select_item(pages, function(page)
-        print(on_select_override)
         if on_select_override ~= nil then
             on_select_override(page)
         else
