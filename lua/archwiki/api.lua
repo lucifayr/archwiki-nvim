@@ -5,7 +5,8 @@ local Archwiki = {}
 ---comment
 ---@param extra_args string?
 ---@param on_err function?
-function Archwiki.select_page_from_local(extra_args, on_err)
+---@param on_select_override function?
+function Archwiki.select_page_from_local(extra_args, on_err, on_select_override)
     local exit, out = utils.execute_command("archwiki-rs list-pages -f")
     if (exit == false) then
         print("failed to run `archwiki-rs` command")
@@ -14,7 +15,12 @@ function Archwiki.select_page_from_local(extra_args, on_err)
 
     local pages = utils.split(out, "\n")
     utils.select_item(pages, function(page)
-        Archwiki.read_page_into_buffer(page, extra_args, on_err)
+        print(on_select_override)
+        if on_select_override ~= nil then
+            on_select_override(page)
+        else
+            Archwiki.read_page_into_buffer(page, extra_args, on_err)
+        end
     end)
 end
 
