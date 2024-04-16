@@ -1,4 +1,4 @@
-local utils = require("archwiki.utils")
+local utils = require("archwiki._utils")
 
 local Archwiki = {}
 
