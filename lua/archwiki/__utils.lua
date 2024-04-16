@@ -11,6 +11,16 @@ function M.split(s, sep)
     return result
 end
 
+---@param s string
+---@returns string[]
+function M.lines(s)
+    local result = {}
+    for line in string.gmatch(s .. "\n", "(.-)\n") do
+        table.insert(result, line);
+    end
+    return result
+end
+
 ---@class CmdResult
 ---@field success boolean
 ---@field stdout string | nil

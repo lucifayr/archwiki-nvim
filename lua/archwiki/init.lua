@@ -1,6 +1,6 @@
-local config = require("archwiki._config")
-local utils = require("archwiki._utils")
-local read_page = require("archwiki._read_page")
+local config = require("archwiki.__config")
+local utils = require("archwiki.__utils")
+local read_page = require("archwiki.__read_page")
 
 local M = {}
 

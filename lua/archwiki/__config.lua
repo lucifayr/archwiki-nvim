@@ -1,5 +1,5 @@
-local pickers = require("archwiki._pickers")
-local read_page = require("archwiki._read_page")
+local pickers = require("archwiki.__pickers")
+local read_page = require("archwiki.__read_page")
 
 ---@class Config
 ---@field page PageConfig
@@ -28,7 +28,7 @@ Config = {
 local M = {}
 
 
----@param cfg Config
+---@param cfg table
 function M.setup(cfg)
     Config = vim.tbl_deep_extend("force", Config, cfg)
 end
