@@ -1,5 +1,6 @@
 local config = require("archwiki._config")
 local utils = require("archwiki._utils")
+local read_page = require("archwiki._read_page")
 
 local M = {}
 
@@ -7,6 +8,8 @@ local min_version = "3.1.2"
 local max_version = nil
 
 M.setup = config.setup
+M.read_page = read_page.read_page
+M.read_page_raw = read_page.read_page_raw
 
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then
@@ -16,7 +19,7 @@ if not res.success then
         "or reference 'https://gitlab.com/Jackboxx/archwiki-rs/-/blob/main/README.md' for other installation options.",
         vim.log.levels.ERROR)
 
-    M = {}
+    return {}
 end
 
 local version = string.gsub(res.stdout, "archwiki%-rs ", "");
@@ -27,6 +30,7 @@ if min_version then
             "'archwiki-rs' version is too small. Some featurs might not work properly.\n" ..
             "Current version " .. version .. "\n" ..
             "Minimum version " .. min_version
+            , vim.log.levels.WARN
         )
     end
 end
@@ -38,6 +42,8 @@ if max_version then
             "'archwiki-rs' version is too large. Some featurs might not work properly.\n" ..
             "Current version " .. version .. "\n" ..
             "Maximum version " .. max_version
+            ,
+            vim.log.levels.WARN
         )
     end
 end

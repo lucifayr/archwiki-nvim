@@ -58,6 +58,10 @@ function M.exec_cmd(command)
     local stdout = nil
     if stdout_file ~= nil then
         stdout = stdout_file:read("*all")
+        if string.gsub(stdout, "%s+", "") == "" then
+            stdout = nil
+        end
+
         stdout_file:close()
     end
 
@@ -66,6 +70,10 @@ function M.exec_cmd(command)
     local stderr = nil
     if stderr_file ~= nil then
         stderr = stderr_file:read("*all")
+        if string.gsub(stderr, "%s+", "") == "" then
+            stderr = nil
+        end
+
         stderr_file:close()
     end
 
