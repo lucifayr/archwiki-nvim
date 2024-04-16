@@ -1,6 +1,7 @@
 local config = require("archwiki.__config")
 local utils = require("archwiki.__utils")
 local read_page = require("archwiki.__read_page")
+local search = require("archwiki.__search")
 
 local M = {}
 
@@ -10,6 +11,8 @@ local max_version = nil
 M.setup = config.setup
 M.read_page = read_page.read_page
 M.read_page_raw = read_page.read_page_raw
+-- todo
+M.text_search = search.search
 
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then

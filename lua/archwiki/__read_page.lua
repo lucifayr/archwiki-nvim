@@ -1,6 +1,8 @@
 local utils = require("archwiki.__utils")
 local job = require("plenary.job")
 
+local log = require("plenary.log")
+
 local M = {}
 
 ---@class ReadPageRaw
@@ -17,7 +19,7 @@ function M.read_page_raw(page, on_success, on_err, extra)
 
     job:new({
         command = "archwiki-rs",
-        args = { "read-page", page, "-i", unpack(extra or {}) },
+        args = { "read-page", page, unpack(extra or {}) },
         on_stdout = function(__err, out)
             if not out then
                 return
@@ -61,6 +63,7 @@ function M.read_page(page, extra)
             Config.pickers.page_search(err)
         else
             vim.notify("Failed to reag page '" .. page .. "'", vim.log.levels.WARN)
+            Logger.debug(err)
         end
     end
 
