@@ -40,7 +40,7 @@ function M.read_page(page, extra)
     elseif res.err then
         if Config.page.show_similar then
             local suggestions = utils.split(res.err, "\n")
-            print(vim.inspect(suggestions))
+            Config.pickers.page_search(suggestions)
         end
     end
 end
