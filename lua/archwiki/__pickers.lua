@@ -1,15 +1,20 @@
-local read_page = require("archwiki.__read_page")
-local utils = require("archwiki.__utils")
+local read_page    = require("archwiki.__read_page")
+local utils        = require("archwiki.__utils")
 
-local pickers = require("telescope.pickers")
-local previewers = require("telescope.previewers")
-local finders = require("telescope.finders")
-local conf = require("telescope.config").values
-local actions = require("telescope.actions")
+local job          = require("plenary.job")
+
+local pickers      = require("telescope.pickers")
+local previewers   = require("telescope.previewers")
+local finders      = require("telescope.finders")
+local conf         = require("telescope.config").values
+local actions      = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 
-local M = {}
+local M            = {}
 
+---@class TextSnippet
+---@field title string
+---@field snippet string
 
 ---@param items string[]
 function M.page_search(items)
@@ -65,55 +70,70 @@ function M.page_search(items)
     }):find()
 end
 
----@class TextSnippet
----@field title string
----@field snippet string
+--- TODO
+---@class DebouncedSearchOpts
+---@field timeout number|nil
+---@field prompt_title string|nil
+---@field previewer function|nil
+---@field entry_maker function|nil
 
----@param items TextSnippet[]
-function M.snippet_search(items)
+---TODO
+---@param cmd string
+---@param args string[]
+---@param on_cmd_exit function TODO
+---@param on_select function TODO
+---@param opts DebouncedSearchOpts TODO
+function M.debounced_search(cmd, args, on_cmd_exit, on_select, opts)
+    local items = {}
+    local runnin_job = nil
+
     pickers.new({}, {
-        prompt_title = "Search Results",
+        prompt_title = opts.prompt_title or "Search the ArchWiki",
         finder = finders.new_table({
             results = items,
-            entry_maker = function(entry)
-                local snippet = entry
-                return {
-                    value = snippet,
-                    display = snippet.title,
-                    ordinal = snippet.title
-                }
-            end
+            entry_maker = opts.entry_maker
         }),
         sorter = conf.generic_sorter({}),
-        previewer = previewers.new_buffer_previewer({
-            title = "Snippet",
-            define_preview = function(self, entry)
-                Logger.debug(entry)
-                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, utils.lines(entry.value.snippet))
-            end
-        }),
+        previewer = opts.previewer,
         attach_mappings = function(prompt_bufnr)
-            actions.select_default:replace(function()
-                actions.close(prompt_bufnr)
-                local entry = action_state.get_selected_entry()
+            local function on_prompt_line_change(_, _)
+                if runnin_job ~= nil then
+                    return
+                end
+
+                items = { title = "hi", snippet = "hello" }
+
                 local text = action_state.get_current_line()
-                local selection = text
+                local stdout = ""
 
-                if (entry and entry.value) then
-                    selection = entry.value.title
-                end
+                Logger.debug(utils.join_array(args, { text }))
 
+                runnin_job = job:new({
+                    command = cmd,
+                    args = utils.join_array(args, { text }),
+                    on_stdout = function(_, out)
+                        if not out then
+                            return
+                        end
 
-                local function on_success(bufnr)
-                    Config.page.handle_buf(bufnr)
-                end
-                local function on_err()
-                    vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
-                end
+                        stdout = stdout .. out
+                    end,
+                    on_exit = function(job, code)
+                        on_cmd_exit(items, code, stdout, job:stderr_result())
+                        runnin_job = nil
+                    end
+                })
 
-                read_page.read_page_raw(selection, on_success, on_err)
+                runnin_job:start()
+            end
+
+            vim.api.nvim_buf_attach(prompt_bufnr, false, {
+                on_lines = on_prompt_line_change,
+            })
+
+            actions.select_default:replace(function()
+                on_select(prompt_bufnr)
             end)
-
             return true
         end,
 

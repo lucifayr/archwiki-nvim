@@ -11,8 +11,8 @@ local max_version = nil
 M.setup = config.setup
 M.read_page = read_page.read_page
 M.read_page_raw = read_page.read_page_raw
--- todo
-M.text_search = search.search
+
+M.text_search = search.text_search
 
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then

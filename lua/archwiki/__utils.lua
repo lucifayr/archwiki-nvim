@@ -1,5 +1,21 @@
 local M = {}
 
+---@param a any[]
+---@param b any[]
+---@return table
+function M.join_array(a, b)
+    local res = {}
+    for _, value in ipairs(a) do
+        table.insert(res, value)
+    end
+
+    for _, value in ipairs(b) do
+        table.insert(res, value)
+    end
+
+    return res
+end
+
 ---@param s string
 ---@param sep string
 ---@returns string[]
