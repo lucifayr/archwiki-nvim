@@ -40,7 +40,7 @@ function M.page_search(items)
                     Config.page.handle_buf(bufnr)
                 end
                 local function on_err()
-                    vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
+                    vim.notify("Failed to load page '" .. selection .. "'", vim.log.levels.WARN)
                 end
 
                 read_page.read_page_raw(selection, on_success, on_err)

@@ -24,23 +24,23 @@ local function build_on_select(on_success, on_err)
         end
 
         local function default_on_err()
-            vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
+            vim.notify("Failed to load page '" .. selection .. "'", vim.log.levels.WARN)
         end
 
-        vim.notify("Fetching page '" .. selection .. "'", vim.log.levels.INFO)
+        vim.notify("Loading page '" .. selection .. "'", vim.log.levels.INFO)
         read_page.read_page_raw(selection, on_success or default_on_success, on_err or default_on_err)
     end
 end
 
 function M.text_search()
     local args = { "-t", "-L", "25", "-J", "-S", "markdown", "-H" }
-    local matchLineIdx = nil
+    local lineMatchIdx = nil
 
     local function on_select_success(bufnr)
         Config.page.handle_buf(bufnr)
-        if matchLineIdx then
+        if lineMatchIdx then
             vim.api.nvim_buf_call(bufnr, function()
-                vim.cmd(":" .. matchLineIdx)
+                vim.cmd(":" .. lineMatchIdx)
                 vim.cmd("norm zz")
             end)
         end
@@ -63,14 +63,14 @@ function M.text_search()
 
                 for idx, line in ipairs(lines) do
                     if string.find(line, text) ~= nil then
-                        matchLineIdx = idx
+                        lineMatchIdx = idx
                         break;
                     end
                 end
 
-                if matchLineIdx then
+                if lineMatchIdx then
                     vim.api.nvim_buf_call(bufnr, function()
-                        vim.cmd(":" .. matchLineIdx)
+                        vim.cmd(":" .. lineMatchIdx)
                         vim.cmd("norm zz")
                     end)
                 end
@@ -79,7 +79,7 @@ function M.text_search()
     })
 end
 
-function M.title_search()
+function M.page_search()
     local args = { "-L", "25", "-J" }
 
     pickers.debounced_search(args, build_on_select(), {

@@ -8,14 +8,12 @@ local M = {}
 local min_version = "3.1.2"
 local max_version = nil
 
--- TODO: don't set preview buffer on move
-
 M.setup = config.setup
 M.read_page = read_page.read_page
 M.read_page_raw = read_page.read_page_raw
 
 M.text_search = search.text_search
-M.title_search = search.title_search
+M.page_search = search.page_search
 
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then

@@ -48,26 +48,35 @@ function M.read_page_raw(page, on_success, on_err, extra)
 end
 
 ---@param opts table
+---@return unknown
 function M.previewer(opts)
     return previewers.new_buffer_previewer({
         title = opts.title or "Page Preview",
         define_preview = function(self, entry)
             previewers_utils.highlighter(self.state.bufnr, "markdown")
-
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, { "Loading..." })
 
             local selection = entry.display
+            local preview_bufner = self.state.bufnr
             local function on_success(bufnr)
+                if not vim.api.nvim_buf_is_valid(preview_bufner) then
+                    return
+                end
+
                 local lines = vim.api.nvim_buf_get_text(bufnr, 0, 0, -1, -1, {})
-                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, lines)
+                vim.api.nvim_buf_set_lines(preview_bufner, 0, -1, true, lines)
 
                 if opts.post_process then
-                    opts.post_process(self.state.bufnr, entry)
+                    opts.post_process(preview_bufner, entry)
                 end
             end
             local function on_err()
-                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true,
-                    { "Failed to fetch page" })
+                if not vim.api.nvim_buf_is_valid(preview_bufner) then
+                    return
+                end
+
+                vim.api.nvim_buf_set_lines(preview_bufner, 0, -1, true,
+                    { "Failed to load page" })
             end
 
             M.read_page_raw(selection, on_success, on_err)
@@ -79,6 +88,13 @@ end
 ---@param page string
 ---@param extra string[]|nil
 function M.read_page(page, extra)
+    if page == nil or #page == 0 then
+        page = vim.fn.input("page name: ")
+        if #page == 0 then
+            return
+        end
+    end
+
     local function on_success(bufnr)
         Config.page.handle_buf(bufnr)
     end
@@ -101,7 +117,7 @@ function M.read_page(page, extra)
         end
     end
 
-    vim.notify("Fetching page '" .. page .. "'", vim.log.levels.INFO)
+    vim.notify("Loading page '" .. page .. "'", vim.log.levels.INFO)
     M.read_page_raw(page, on_success, on_err, extra)
 end
 
