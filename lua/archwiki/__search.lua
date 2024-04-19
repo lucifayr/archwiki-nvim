@@ -5,6 +5,7 @@ local pickers = require("archwiki.__pickers")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local previewers = require("telescope.previewers")
+local previewers_utils = require('telescope.previewers.utils')
 
 local M = {}
 
@@ -37,30 +38,19 @@ function M.text_search(extra)
         read_page.read_page_raw(selection, on_success, on_err)
     end
 
-    local function on_cmd_exit(items, code, stdout, _)
-        vim.schedule(function()
-            if code == 0 then
-                local parsed = vim.json.decode(stdout)
-                if parsed then
-                    Logger.debug(parsed)
-                    items = parsed
-                end
-            end
-        end)
-    end
-
-    pickers.debounced_search(cmd, { "search", unpack(args) }, on_cmd_exit, on_select, {
+    pickers.debounced_search(cmd, { "search", unpack(args) }, on_select, {
         entry_maker = function(entry)
             return {
                 value = entry,
                 display = entry.title,
-                ordinal = entry.title
+                ordinal = entry.title .. entry.snippet
             }
         end,
         previewer = previewers.new_buffer_previewer({
             title = "Snippet",
             define_preview = function(self, entry)
                 vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, utils.lines(entry.value.snippet))
+                previewers_utils.highlighter(self.state.bufnr, "markdown")
             end
         })
     })

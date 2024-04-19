@@ -80,64 +80,73 @@ end
 ---TODO
 ---@param cmd string
 ---@param args string[]
----@param on_cmd_exit function TODO
 ---@param on_select function TODO
 ---@param opts DebouncedSearchOpts TODO
-function M.debounced_search(cmd, args, on_cmd_exit, on_select, opts)
+function M.debounced_search(cmd, args, on_select, opts)
     local items = {}
     local runnin_job = nil
+    local picker = nil
+    local prev_prompt = nil
 
-    pickers.new({}, {
-        prompt_title = opts.prompt_title or "Search the ArchWiki",
-        finder = finders.new_table({
-            results = items,
-            entry_maker = opts.entry_maker
-        }),
-        sorter = conf.generic_sorter({}),
-        previewer = opts.previewer,
-        attach_mappings = function(prompt_bufnr)
-            local function on_prompt_line_change(_, _)
-                if runnin_job ~= nil then
+    local function on_prompt_line_change(text)
+        if text == prev_prompt then
+            return
+        end
+
+        if runnin_job ~= nil then
+            runnin_job:shutdown()
+        end
+
+        local stdout = ""
+        runnin_job = job:new({
+            command = cmd,
+            args = utils.join_array(args, { text }),
+            on_stdout = function(_, out)
+                if not out then
                     return
                 end
 
-                items = { title = "hi", snippet = "hello" }
-
-                local text = action_state.get_current_line()
-                local stdout = ""
-
-                Logger.debug(utils.join_array(args, { text }))
-
-                runnin_job = job:new({
-                    command = cmd,
-                    args = utils.join_array(args, { text }),
-                    on_stdout = function(_, out)
-                        if not out then
-                            return
+                stdout = stdout .. out
+            end,
+            on_exit = function(_, code)
+                vim.schedule(function()
+                    if code == 0 then
+                        local parsed = vim.json.decode(stdout)
+                        if parsed and picker and #parsed ~= 0 then
+                            items = parsed
+                            picker:refresh()
                         end
-
-                        stdout = stdout .. out
-                    end,
-                    on_exit = function(job, code)
-                        on_cmd_exit(items, code, stdout, job:stderr_result())
-                        runnin_job = nil
                     end
-                })
-
-                runnin_job:start()
+                end)
             end
+        })
 
-            vim.api.nvim_buf_attach(prompt_bufnr, false, {
-                on_lines = on_prompt_line_change,
-            })
+        runnin_job:start()
+    end
 
+    local search_finder = finders.new_dynamic({
+        fn = function(prompt)
+            on_prompt_line_change(prompt)
+            prev_prompt = prompt
+            return items
+        end,
+        entry_maker = opts.entry_maker
+    })
+
+    picker = pickers.new({}, {
+        prompt_title = opts.prompt_title or "Search the ArchWiki",
+        finder = search_finder,
+        sorter = conf.generic_sorter({}),
+        previewer = opts.previewer,
+        attach_mappings = function(prompt_bufnr)
             actions.select_default:replace(function()
                 on_select(prompt_bufnr)
             end)
             return true
         end,
+    })
 
-    }):find()
+    picker:find()
 end
 
 return M
