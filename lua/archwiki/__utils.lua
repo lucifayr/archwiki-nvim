@@ -16,6 +16,20 @@ function M.join_array(a, b)
     return res
 end
 
+---@param arr any[]
+---@param f function
+--- @return table
+function M.filter(arr, f)
+    local result = {}
+    for _, value in pairs(arr) do
+        if f(value) then
+            table.insert(result, value)
+        end
+    end
+
+    return result
+end
+
 ---@param s string
 ---@param sep string
 ---@returns string[]

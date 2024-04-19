@@ -26,11 +26,7 @@ function M.read_page_raw(page, on_success, on_err, extra)
                 return
             end
 
-            if string.gsub(out, "%s+", "") == "" then
-                stdout = stdout .. "\n"
-            else
-                stdout = stdout .. out
-            end
+            stdout = stdout .. out .. "\n"
         end,
         on_exit = function(job, code)
             vim.schedule(function()
@@ -84,7 +80,15 @@ function M.read_page(page, extra)
     local function on_err(err)
         if Config.page.show_similar and err[1] == "SIMILAR PAGES" then
             table.remove(err, 1)
-            Config.pickers.page_search(err)
+            local similar = utils.filter(err, function(v)
+                return string.gsub(v, "%s+", "") ~= ""
+            end)
+
+            if #similar ~= 0 then
+                Config.pickers.page_search(similar)
+            else
+                vim.notify('No pages resembling "' .. page .. '" were found', vim.log.levels.WARN)
+            end
         else
             vim.notify("Failed to reag page '" .. page .. "'", vim.log.levels.WARN)
             Logger.debug(err)
@@ -98,6 +102,7 @@ end
 ---@param buf integer
 function M.handle_buf(buf)
     vim.api.nvim_buf_set_option(buf, "readonly", true)
+    vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
     vim.cmd("b" .. buf)
 end
 
