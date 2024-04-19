@@ -9,36 +9,34 @@ local previewers_utils = require('telescope.previewers.utils')
 
 local M = {}
 
----Read a page from the ArchWiki.
----@param extra string[]|nil
-function M.text_search(extra)
-    local cmd = "archwiki-rs"
-    local default_args = { "-t", "-L", "25", "-J", "-S", "markdown" }
-    local args = vim.tbl_deep_extend("force", default_args, extra or {})
+local function on_select(prompt_bufnr)
+    actions.close(prompt_bufnr)
 
-    local function on_select(prompt_bufnr)
-        actions.close(prompt_bufnr)
+    local entry = action_state.get_selected_entry()
+    local text = action_state.get_current_line()
+    local selection = text
 
-        local entry = action_state.get_selected_entry()
-        local text = action_state.get_current_line()
-        local selection = text
-
-        if (entry and entry.value) then
-            selection = entry.value.title
-        end
-
-
-        local function on_success(bufnr)
-            Config.page.handle_buf(bufnr)
-        end
-        local function on_err()
-            vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
-        end
-
-        read_page.read_page_raw(selection, on_success, on_err)
+    if (entry and entry.value) then
+        selection = entry.value.title
     end
 
-    pickers.debounced_search(cmd, { "search", unpack(args) }, on_select, {
+
+    local function on_success(bufnr)
+        Config.page.handle_buf(bufnr)
+    end
+    local function on_err()
+        vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
+    end
+
+    vim.notify("Fetching page '" .. selection .. "'", vim.log.levels.INFO)
+    read_page.read_page_raw(selection, on_success, on_err)
+end
+
+function M.text_search()
+    local args = { "-t", "-L", "25", "-J", "-S", "markdown" }
+
+    pickers.debounced_search(args, on_select, {
+        prompt_title = "Search ArchWiki for text",
         entry_maker = function(entry)
             return {
                 value = entry,
@@ -53,6 +51,22 @@ function M.text_search(extra)
                 previewers_utils.highlighter(self.state.bufnr, "markdown")
             end
         })
+    })
+end
+
+function M.title_search()
+    local args = { "-L", "25", "-J" }
+
+    pickers.debounced_search(args, on_select, {
+        prompt_title = "Search ArchWiki for pages",
+        entry_maker = function(entry)
+            return {
+                value = entry,
+                display = entry.title,
+                ordinal = entry.title
+            }
+        end,
+        previewer = read_page.previewer()
     })
 end
 

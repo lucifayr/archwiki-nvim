@@ -3,6 +3,9 @@ local utils = require("archwiki.__utils")
 local read_page = require("archwiki.__read_page")
 local search = require("archwiki.__search")
 
+-- TODO preview format text
+-- TODO unfuck markdown format
+
 local M = {}
 
 local min_version = "3.1.2"
@@ -13,6 +16,7 @@ M.read_page = read_page.read_page
 M.read_page_raw = read_page.read_page_raw
 
 M.text_search = search.text_search
+M.title_search = search.title_search
 
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then

@@ -4,7 +4,6 @@ local utils        = require("archwiki.__utils")
 local job          = require("plenary.job")
 
 local pickers      = require("telescope.pickers")
-local previewers   = require("telescope.previewers")
 local finders      = require("telescope.finders")
 local conf         = require("telescope.config").values
 local actions      = require("telescope.actions")
@@ -24,24 +23,7 @@ function M.page_search(items)
             results = items
         },
         sorter = conf.generic_sorter({}),
-        previewer = previewers.new_buffer_previewer({
-            title = "Page Preview",
-            define_preview = function(self, entry)
-                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, { "Loading..." })
-
-                local selection = entry[1]
-                local function on_success(bufnr)
-                    local lines = vim.api.nvim_buf_get_text(bufnr, 0, 0, -1, -1, {})
-                    vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, lines)
-                end
-                local function on_err()
-                    vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true,
-                        { "Failed to fetch page '" .. selection .. "'" })
-                end
-
-                read_page.read_page_raw(selection, on_success, on_err)
-            end
-        }),
+        previewer = read_page.previewer(),
         attach_mappings = function(prompt_bufnr)
             actions.select_default:replace(function()
                 actions.close(prompt_bufnr)
@@ -78,15 +60,27 @@ end
 ---@field entry_maker function|nil
 
 ---TODO
----@param cmd string
 ---@param args string[]
 ---@param on_select function TODO
 ---@param opts DebouncedSearchOpts TODO
-function M.debounced_search(cmd, args, on_select, opts)
-    local items = {}
+function M.debounced_search(args, on_select, opts)
+    local results = {
+        current = {},
+        fetched = {}
+    }
+
     local runnin_job = nil
     local picker = nil
     local prev_prompt = nil
+
+    local function update_current_items()
+        if picker == nil then
+            return
+        end
+
+        results.current = results.fetched
+        picker:refresh()
+    end
 
     local function on_prompt_line_change(text)
         if text == prev_prompt then
@@ -99,8 +93,8 @@ function M.debounced_search(cmd, args, on_select, opts)
 
         local stdout = ""
         runnin_job = job:new({
-            command = cmd,
-            args = utils.join_array(args, { text }),
+            command = "archwiki-rs",
+            args = utils.join_array({ "search", text }, args),
             on_stdout = function(_, out)
                 if not out then
                     return
@@ -113,8 +107,10 @@ function M.debounced_search(cmd, args, on_select, opts)
                     if code == 0 then
                         local parsed = vim.json.decode(stdout)
                         if parsed and picker and #parsed ~= 0 then
-                            items = parsed
-                            picker:refresh()
+                            results.fetched = parsed
+                            if #results.current == 0 then
+                                update_current_items()
+                            end
                         end
                     end
                 end)
@@ -128,17 +124,23 @@ function M.debounced_search(cmd, args, on_select, opts)
         fn = function(prompt)
             on_prompt_line_change(prompt)
             prev_prompt = prompt
-            return items
+
+            return results.current
         end,
         entry_maker = opts.entry_maker
     })
 
+    -- TODO add info text for reload
     picker = pickers.new({}, {
         prompt_title = opts.prompt_title or "Search the ArchWiki",
         finder = search_finder,
         sorter = conf.generic_sorter({}),
         previewer = opts.previewer,
-        attach_mappings = function(prompt_bufnr)
+        attach_mappings = function(prompt_bufnr, map)
+            map({ "i", "n" }, "<S-r>", function(_)
+                update_current_items()
+            end)
+
             actions.select_default:replace(function()
                 on_select(prompt_bufnr)
             end)
