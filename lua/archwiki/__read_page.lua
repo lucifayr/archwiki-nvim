@@ -3,7 +3,8 @@ local job              = require("plenary.job")
 local previewers       = require("telescope.previewers")
 local previewers_utils = require('telescope.previewers.utils')
 
-local M                = {}
+
+local M = {}
 
 ---@class ReadPageRaw
 ---@field buf integer|nil Buffer that is created after a successful page read.
@@ -16,7 +17,7 @@ local M                = {}
 ---@param extra string[]|nil
 function M.read_page_raw(page, on_success, on_err, extra)
     local stdout = ""
-    local args = utils.join_array({ "read-page", page, "--format", "markdown" }, extra or {})
+    local args = utils.join_arrays({ "read-page", page, "--format", "markdown" }, extra or {})
 
     job:new({
         command = "archwiki-rs",
@@ -46,9 +47,10 @@ function M.read_page_raw(page, on_success, on_err, extra)
     }):start()
 end
 
-function M.previewer()
+---@param opts table
+function M.previewer(opts)
     return previewers.new_buffer_previewer({
-        title = "Page Preview",
+        title = opts.title or "Page Preview",
         define_preview = function(self, entry)
             previewers_utils.highlighter(self.state.bufnr, "markdown")
 
@@ -58,6 +60,10 @@ function M.previewer()
             local function on_success(bufnr)
                 local lines = vim.api.nvim_buf_get_text(bufnr, 0, 0, -1, -1, {})
                 vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, lines)
+
+                if opts.post_process then
+                    opts.post_process(self.state.bufnr, entry)
+                end
             end
             local function on_err()
                 vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true,

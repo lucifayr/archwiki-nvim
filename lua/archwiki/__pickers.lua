@@ -23,7 +23,7 @@ function M.page_search(items)
             results = items
         },
         sorter = conf.generic_sorter({}),
-        previewer = read_page.previewer(),
+        previewer = read_page.previewer({}),
         attach_mappings = function(prompt_bufnr)
             actions.select_default:replace(function()
                 actions.close(prompt_bufnr)
@@ -94,7 +94,7 @@ function M.debounced_search(args, on_select, opts)
         local stdout = ""
         runnin_job = job:new({
             command = "archwiki-rs",
-            args = utils.join_array({ "search", text }, args),
+            args = utils.join_arrays({ "search", text }, args),
             on_stdout = function(_, out)
                 if not out then
                     return

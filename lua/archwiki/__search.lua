@@ -1,41 +1,52 @@
-local utils = require("archwiki.__utils")
 local read_page = require("archwiki.__read_page")
 local pickers = require("archwiki.__pickers")
 
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
-local previewers = require("telescope.previewers")
-local previewers_utils = require('telescope.previewers.utils')
 
 local M = {}
 
-local function on_select(prompt_bufnr)
-    actions.close(prompt_bufnr)
+local function build_on_select(on_success, on_err)
+    return function(prompt_bufnr)
+        actions.close(prompt_bufnr)
 
-    local entry = action_state.get_selected_entry()
-    local text = action_state.get_current_line()
-    local selection = text
+        local entry = action_state.get_selected_entry()
+        local text = action_state.get_current_line()
+        local selection = text
 
-    if (entry and entry.value) then
-        selection = entry.value.title
+        if (entry and entry.value) then
+            selection = entry.value.title
+        end
+
+
+        local function default_on_success(bufnr)
+            Config.page.handle_buf(bufnr)
+        end
+
+        local function default_on_err()
+            vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
+        end
+
+        vim.notify("Fetching page '" .. selection .. "'", vim.log.levels.INFO)
+        read_page.read_page_raw(selection, on_success or default_on_success, on_err or default_on_err)
     end
-
-
-    local function on_success(bufnr)
-        Config.page.handle_buf(bufnr)
-    end
-    local function on_err()
-        vim.notify("Failed to fetch page '" .. selection .. "'", vim.log.levels.WARN)
-    end
-
-    vim.notify("Fetching page '" .. selection .. "'", vim.log.levels.INFO)
-    read_page.read_page_raw(selection, on_success, on_err)
 end
 
 function M.text_search()
-    local args = { "-t", "-L", "25", "-J", "-S", "markdown" }
+    local args = { "-t", "-L", "25", "-J", "-S", "markdown", "-H" }
+    local matchLineIdx = nil
 
-    pickers.debounced_search(args, on_select, {
+    local function on_select_success(bufnr)
+        Config.page.handle_buf(bufnr)
+        if matchLineIdx then
+            vim.api.nvim_buf_call(bufnr, function()
+                vim.cmd(":" .. matchLineIdx)
+                vim.cmd("norm zz")
+            end)
+        end
+    end
+
+    pickers.debounced_search(args, build_on_select(on_select_success), {
         prompt_title = "Search ArchWiki for text",
         entry_maker = function(entry)
             return {
@@ -44,11 +55,25 @@ function M.text_search()
                 ordinal = entry.title .. entry.snippet
             }
         end,
-        previewer = previewers.new_buffer_previewer({
-            title = "Snippet",
-            define_preview = function(self, entry)
-                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, utils.lines(entry.value.snippet))
-                previewers_utils.highlighter(self.state.bufnr, "markdown")
+        previewer = read_page.previewer({
+            title = "Page Snippet",
+            post_process = function(bufnr)
+                local lines = vim.api.nvim_buf_get_text(bufnr, 0, 0, -1, -1, {})
+                local text = action_state.get_current_line()
+
+                for idx, line in ipairs(lines) do
+                    if string.find(line, text) ~= nil then
+                        matchLineIdx = idx
+                        break;
+                    end
+                end
+
+                if matchLineIdx then
+                    vim.api.nvim_buf_call(bufnr, function()
+                        vim.cmd(":" .. matchLineIdx)
+                        vim.cmd("norm zz")
+                    end)
+                end
             end
         })
     })
@@ -57,7 +82,7 @@ end
 function M.title_search()
     local args = { "-L", "25", "-J" }
 
-    pickers.debounced_search(args, on_select, {
+    pickers.debounced_search(args, build_on_select(), {
         prompt_title = "Search ArchWiki for pages",
         entry_maker = function(entry)
             return {
@@ -66,7 +91,7 @@ function M.title_search()
                 ordinal = entry.title
             }
         end,
-        previewer = read_page.previewer()
+        previewer = read_page.previewer({})
     })
 end
 

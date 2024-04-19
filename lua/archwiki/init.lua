@@ -8,6 +8,8 @@ local M = {}
 local min_version = "3.1.2"
 local max_version = nil
 
+-- TODO: don't set preview buffer on move
+
 M.setup = config.setup
 M.read_page = read_page.read_page
 M.read_page_raw = read_page.read_page_raw
