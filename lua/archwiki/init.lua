@@ -5,7 +5,7 @@ local search = require("archwiki.__search")
 
 local M = {}
 
-local min_version = "3.1.2"
+local min_version = "3.2.0"
 local max_version = nil
 
 M.setup = config.setup

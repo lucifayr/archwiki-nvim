@@ -33,6 +33,7 @@ local function build_on_select(on_success, on_err)
     end
 end
 
+--- Search the ArchWiki for any pages containing the query text.
 function M.text_search()
     local args = { "-t", "-L", "25", "-J", "-S", Config.page.format, "-H" }
     local lineMatchIdx = nil
@@ -80,6 +81,7 @@ function M.text_search()
     })
 end
 
+--- Search the ArchWiki for any pages with a title similar to the query text.
 function M.page_title_search()
     local args = { "-L", "25", "-J" }
 
@@ -96,6 +98,7 @@ function M.page_title_search()
     })
 end
 
+--- Search a local list of ArchWiki pages in a telescope picker.
 function M.local_page_search()
     pickers.page_picker({
         prompt_title = "Search local pages",

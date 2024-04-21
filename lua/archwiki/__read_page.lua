@@ -11,6 +11,7 @@ local M = {}
 ---@field err string|nil Any output sent to stderr.
 
 ---Read a page from the ArchWiki.
+---Useful when creating custom telescope previewers.
 ---@param page string
 ---@param on_success function
 ---@param on_err function
