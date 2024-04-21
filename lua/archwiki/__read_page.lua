@@ -17,7 +17,7 @@ local M = {}
 ---@param extra string[]|nil
 function M.read_page_raw(page, on_success, on_err, extra)
     local stdout = ""
-    local args = utils.array_join({ "read-page", page, "--format", "markdown" }, extra or {})
+    local args = utils.array_join({ "read-page", page, "--format", Config.page.format }, extra or {})
 
     job:new({
         command = "archwiki-rs",
@@ -53,7 +53,7 @@ function M.previewer(opts)
     return previewers.new_buffer_previewer({
         title = opts.title or "Page Preview",
         define_preview = function(self, entry)
-            previewers_utils.highlighter(self.state.bufnr, "markdown")
+            previewers_utils.highlighter(self.state.bufnr, Config.page.format)
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 0, true, { "Loading..." })
 
             local selection = entry.display
@@ -86,8 +86,7 @@ end
 
 ---Read a page from the ArchWiki.
 ---@param page string
----@param extra string[]|nil
-function M.read_page(page, extra)
+function M.read_page(page)
     if page == nil or #page == 0 then
         page = vim.fn.input("page name: ")
         if #page == 0 then
@@ -119,13 +118,13 @@ function M.read_page(page, extra)
     end
 
     vim.notify("Loading page '" .. page .. "'", vim.log.levels.INFO)
-    M.read_page_raw(page, on_success, on_err, extra)
+    M.read_page_raw(page, on_success, on_err)
 end
 
 ---@param buf integer
 function M.handle_buf(buf)
     vim.api.nvim_buf_set_option(buf, "readonly", true)
-    vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
+    vim.api.nvim_buf_set_option(buf, "filetype", Config.page.format)
     vim.cmd("b" .. buf)
 end
 

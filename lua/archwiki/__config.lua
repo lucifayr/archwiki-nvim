@@ -11,6 +11,7 @@ Logger = log:new()
 ---@field log_level string
 
 ---@class ConfigPage
+---@field format string
 ---@field show_similar boolean
 ---@field handle_buf function
 
@@ -24,6 +25,7 @@ Logger = log:new()
 Config = {
     log_level = "off",
     page      = {
+        format = "markdown",
         show_similar = true,
         handle_buf = read_page.handle_buf
     },

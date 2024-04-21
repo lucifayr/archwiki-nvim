@@ -50,6 +50,7 @@ function M.page_picker(opts)
                     vim.notify("Failed to load page '" .. selection .. "'", vim.log.levels.WARN)
                 end
 
+                vim.notify("Loading page '" .. selection .. "'", vim.log.levels.INFO)
                 read_page.read_page_raw(selection, on_success, on_err)
             end)
 

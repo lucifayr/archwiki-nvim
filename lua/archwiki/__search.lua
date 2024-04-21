@@ -34,7 +34,7 @@ local function build_on_select(on_success, on_err)
 end
 
 function M.text_search()
-    local args = { "-t", "-L", "25", "-J", "-S", "markdown", "-H" }
+    local args = { "-t", "-L", "25", "-J", "-S", Config.page.format, "-H" }
     local lineMatchIdx = nil
 
     local function on_select_success(bufnr)
