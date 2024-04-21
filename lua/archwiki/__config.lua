@@ -5,17 +5,20 @@ local log = require("plenary.log")
 Logger = log:new()
 
 ---@class Config
----@field page PageConfig
----@field pickers PickerConfig
+---@field page ConfigPage
+---@field pickers ConfigPickers
+---@field mappings ConfigMappings
 ---@field log_level string
 
----@class PageConfig
+---@class ConfigPage
 ---@field show_similar boolean
 ---@field handle_buf function
---
----@class PickerConfig
----@field page_search function
----@field snippet_search function
+
+---@class ConfigPickers
+---@field similar_pages function
+
+---@class ConfigMappings
+---@field reload_search string
 
 ---@type Config
 Config = {
@@ -25,8 +28,10 @@ Config = {
         handle_buf = read_page.handle_buf
     },
     pickers   = {
-        page_search = pickers.page_search,
-        snippet_search = pickers.snippet_search
+        similar_pages = pickers.page_search,
+    },
+    mappings  = {
+        reload_search = "<S-r>"
     }
 }
 

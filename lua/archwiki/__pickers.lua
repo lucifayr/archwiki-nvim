@@ -11,14 +11,12 @@ local action_state = require("telescope.actions.state")
 
 local M            = {}
 
----@class TextSnippet
----@field title string
----@field snippet string
-
 ---@param items string[]
-function M.page_search(items)
+---@param opts table
+function M.page_search(items, opts)
     pickers.new({}, {
-        prompt_title = "Pages",
+        prompt_title = opts.prompt_title or "Pages",
+        results_title = opts.results_title or "Search pages",
         finder = finders.new_table {
             results = items
         },
@@ -56,6 +54,7 @@ end
 ---@class DebouncedSearchOpts
 ---@field timeout number|nil
 ---@field prompt_title string|nil
+---@field results_title string|nil
 ---@field previewer function|nil
 ---@field entry_maker function|nil
 
@@ -64,21 +63,24 @@ end
 ---@param on_select function TODO
 ---@param opts DebouncedSearchOpts TODO
 function M.debounced_search(args, on_select, opts)
-    local results = {
+    local results               = {
         current = {},
         fetched = {}
     }
 
-    local runnin_job = nil
-    local picker = nil
-    local prev_prompt = nil
+    local new_results_available = false
+
+    local runnin_job            = nil
+    local picker                = nil
+    local prev_prompt           = nil
 
     local function update_current_items()
         if picker == nil then
             return
         end
 
-        results.current = results.fetched
+        results.current       = results.fetched
+        new_results_available = false
         picker:refresh()
     end
 
@@ -94,7 +96,7 @@ function M.debounced_search(args, on_select, opts)
         local stdout = ""
         runnin_job = job:new({
             command = "archwiki-rs",
-            args = utils.join_arrays({ "search", text }, args),
+            args = utils.array_join({ "search", text }, args),
             on_stdout = function(_, out)
                 if not out then
                     return
@@ -107,9 +109,13 @@ function M.debounced_search(args, on_select, opts)
                     if code == 0 then
                         local parsed = vim.json.decode(stdout)
                         if parsed and picker and #parsed ~= 0 then
-                            results.fetched = parsed
+                            results.fetched       = parsed
+                            new_results_available = true
+
                             if #results.current == 0 then
                                 update_current_items()
+                            else
+                                picker:refresh()
                             end
                         end
                     end
@@ -130,14 +136,21 @@ function M.debounced_search(args, on_select, opts)
         entry_maker = opts.entry_maker
     })
 
-    -- TODO add info text for reload
     picker = pickers.new({}, {
         prompt_title = opts.prompt_title or "Search the ArchWiki",
+        results_title = opts.results_title or "Pages",
         finder = search_finder,
         sorter = conf.generic_sorter({}),
         previewer = opts.previewer,
+        get_status_text = function()
+            if new_results_available then
+                return "󰑐  " .. Config.mappings.reload_search
+            else
+                return ""
+            end
+        end,
         attach_mappings = function(prompt_bufnr, map)
-            map({ "i", "n" }, "<S-r>", function(_)
+            map({ "i", "n" }, Config.mappings.reload_search, function(_)
                 update_current_items()
             end)
 

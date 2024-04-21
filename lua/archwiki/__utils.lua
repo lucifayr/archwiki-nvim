@@ -3,7 +3,7 @@ local M = {}
 ---@param a any[]
 ---@param b any[]
 ---@return table
-function M.join_arrays(a, b)
+function M.array_join(a, b)
     local res = {}
     for _, value in ipairs(a) do
         table.insert(res, value)

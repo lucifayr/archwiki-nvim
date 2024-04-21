@@ -79,7 +79,7 @@ function M.text_search()
     })
 end
 
-function M.page_search()
+function M.page_title_search()
     local args = { "-L", "25", "-J" }
 
     pickers.debounced_search(args, build_on_select(), {

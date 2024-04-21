@@ -17,7 +17,7 @@ local M = {}
 ---@param extra string[]|nil
 function M.read_page_raw(page, on_success, on_err, extra)
     local stdout = ""
-    local args = utils.join_arrays({ "read-page", page, "--format", "markdown" }, extra or {})
+    local args = utils.array_join({ "read-page", page, "--format", "markdown" }, extra or {})
 
     job:new({
         command = "archwiki-rs",
@@ -107,12 +107,13 @@ function M.read_page(page, extra)
             end)
 
             if #similar ~= 0 then
-                Config.pickers.page_search(similar)
+                Config.pickers.similar_pages(similar,
+                    { prompt_title = "Search similar pages", results_title = "Similar Pages" })
             else
-                vim.notify('No pages resembling "' .. page .. '" were found', vim.log.levels.WARN)
+                vim.notify('No pages similar to "' .. page .. '" were found', vim.log.levels.WARN)
             end
         else
-            vim.notify("Failed to reag page '" .. page .. "'", vim.log.levels.WARN)
+            vim.notify("Failed to load page '" .. page .. "'", vim.log.levels.WARN)
             Logger.debug(err)
         end
     end
