@@ -28,7 +28,7 @@ Config = {
         handle_buf = read_page.handle_buf
     },
     pickers   = {
-        similar_pages = pickers.page_search,
+        similar_pages = pickers.page_picker_itemized,
     },
     mappings  = {
         reload_search = "<S-r>"

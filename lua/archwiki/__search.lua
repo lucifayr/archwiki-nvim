@@ -1,10 +1,11 @@
-local read_page = require("archwiki.__read_page")
-local pickers = require("archwiki.__pickers")
+local read_page    = require("archwiki.__read_page")
+local pickers      = require("archwiki.__pickers")
 
-local actions = require("telescope.actions")
+local finders      = require("telescope.finders")
+local actions      = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 
-local M = {}
+local M            = {}
 
 local function build_on_select(on_success, on_err)
     return function(prompt_bufnr)
@@ -92,6 +93,15 @@ function M.page_title_search()
             }
         end,
         previewer = read_page.previewer({})
+    })
+end
+
+function M.local_page_search()
+    pickers.page_picker({
+        prompt_title = "Search local pages",
+        finder = finders.new_job(function()
+            return { "archwiki-rs", "list-pages", "--flatten" }
+        end)
     })
 end
 

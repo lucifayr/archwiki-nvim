@@ -13,13 +13,22 @@ local M            = {}
 
 ---@param items string[]
 ---@param opts table
-function M.page_search(items, opts)
+function M.page_picker_itemized(items, opts)
+    M.page_picker({
+        finder = finders.new_table({
+            results = items
+        }),
+        prompt_title = opts.prompt_title,
+        results_title = opts.results_title
+    })
+end
+
+---@param opts table
+function M.page_picker(opts)
     pickers.new({}, {
         prompt_title = opts.prompt_title or "Pages",
         results_title = opts.results_title or "Search pages",
-        finder = finders.new_table {
-            results = items
-        },
+        finder = opts.finder,
         sorter = conf.generic_sorter({}),
         previewer = read_page.previewer({}),
         attach_mappings = function(prompt_bufnr)
@@ -50,7 +59,6 @@ function M.page_search(items, opts)
     }):find()
 end
 
---- TODO
 ---@class DebouncedSearchOpts
 ---@field timeout number|nil
 ---@field prompt_title string|nil
@@ -58,10 +66,9 @@ end
 ---@field previewer function|nil
 ---@field entry_maker function|nil
 
----TODO
 ---@param args string[]
----@param on_select function TODO
----@param opts DebouncedSearchOpts TODO
+---@param on_select function
+---@param opts DebouncedSearchOpts
 function M.debounced_search(args, on_select, opts)
     local results               = {
         current = {},

@@ -14,6 +14,7 @@ M.read_page_raw = read_page.read_page_raw
 
 M.text_search = search.text_search
 M.page_search = search.page_title_search
+M.local_search = search.local_page_search
 
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then
