@@ -16,6 +16,8 @@ M.text_search = search.text_search
 M.page_search = search.page_title_search
 M.local_search = search.local_page_search
 
+M.config = Config
+
 local res = utils.exec_cmd('archwiki-rs -V')
 if not res.success then
     vim.notify(

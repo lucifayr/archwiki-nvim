@@ -151,6 +151,8 @@ end
 
 function M.fetch_wiki_metadata()
     local res = M.exec_cmd("archwiki-rs info -o -d")
+    assert(res.success, "Failed to fetch ArchWiki metadata")
+
     local dir = string.gsub(res.stdout, "\n$", "")
     local path = dir .. "/pages.yml"
 

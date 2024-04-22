@@ -122,11 +122,13 @@ function M.read_page(page)
     M.read_page_raw(page, on_success, on_err)
 end
 
----@param buf integer
-function M.handle_buf(buf)
-    vim.api.nvim_buf_set_option(buf, "readonly", true)
-    vim.api.nvim_buf_set_option(buf, "filetype", Config.page.format)
-    vim.cmd("b" .. buf)
+---@param bufnr integer
+function M.handle_buf(bufnr)
+    vim.api.nvim_buf_set_option(bufnr, "readonly", true)
+    vim.api.nvim_buf_set_option(bufnr, "filetype", Config.page.format)
+
+    local win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(win, bufnr)
 end
 
 return M
