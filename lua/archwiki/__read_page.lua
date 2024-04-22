@@ -34,7 +34,7 @@ function M.read_page_raw(page, on_success, on_err, extra)
             vim.schedule(function()
                 if code == 0 then
                     local buf = vim.api.nvim_create_buf(false, false)
-                    local data = utils.lines(stdout)
+                    local data = vim.split(stdout, "\n")
 
                     vim.api.nvim_buf_set_lines(buf, 0, 0, true, data)
                     vim.api.nvim_buf_set_option(buf, "modified", false)

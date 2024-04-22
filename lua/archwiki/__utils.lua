@@ -32,27 +32,6 @@ function M.filter(arr, f)
     return result
 end
 
----@param s string
----@param sep string
----@return string[]
-function M.split(s, sep)
-    local result = {}
-    for field in string.gmatch(s, string.format("([^%s]+)", sep)) do
-        table.insert(result, field)
-    end
-    return result
-end
-
----@param s string
----@return string[]
-function M.lines(s)
-    local result = {}
-    for line in string.gmatch(s .. "\n", "(.-)\n") do
-        table.insert(result, line);
-    end
-    return result
-end
-
 ---@class CmdResult
 ---@field success boolean
 ---@field stdout string | nil
@@ -126,14 +105,17 @@ local function cmp_semver_version_digit(triple_a, triple_b, digit)
 end
 
 --- Compare 2 semantic version strings of the form x.y.z
----@param a string
----@param b string
+---@param smvr_string_a string
+---@param smvr_string_b string
 ---@return "greater"|"equal"|"smaller"
-function M.cmp_semver_version(a, b)
-    local triple_a = M.split(a, ".");
+function M.cmp_semver_version(smvr_string_a, smvr_string_b)
+    local a = vim.trim(smvr_string_a)
+    local b = vim.trim(smvr_string_b)
+
+    local triple_a = vim.split(a, ".", { plain = true });
     assert(#triple_a == 3, "semantic version string '" .. a .. "' is not of the form 'x.y.z'")
 
-    local triple_b = M.split(b, ".");
+    local triple_b = vim.split(a, ".", { plain = true });
     assert(#triple_b == 3, "semantic version string '" .. b .. "' is not of the form 'x.y.z'")
 
     local ord_major = cmp_semver_version_digit(triple_a, triple_b, "major")

@@ -1,4 +1,4 @@
-# archwiki-nvim
+# archwiki-nvim 📖
 
 Have any ArchWiki page available instantly.
 
@@ -20,8 +20,8 @@ Have any ArchWiki page available instantly.
 
 ## Dependencies
 
-This plugin uses the CLI tool [archwiki-rs](https://github.com/jackboxx/archwiki-rs).
-Installation instructions are available [here](https://github.com/jackboxx/archwiki-rs#installation).
+This plugin uses the CLI tool [archwiki-rs](https://gitlab.com/jackboxx/archwiki-rs).
+Installation instructions are available [here](https://gitlab.com/jackboxx/archwiki-rs#installation).
 
 ## Installation
 
