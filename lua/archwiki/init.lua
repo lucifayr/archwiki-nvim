@@ -53,5 +53,6 @@ if max_version then
     end
 end
 
+utils.fetch_wiki_metadata()
 
 return M

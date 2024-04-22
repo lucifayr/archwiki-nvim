@@ -1,3 +1,5 @@
+local job = require('plenary.job')
+
 local M = {}
 
 ---@param a any[]
@@ -32,7 +34,7 @@ end
 
 ---@param s string
 ---@param sep string
----@returns string[]
+---@return string[]
 function M.split(s, sep)
     local result = {}
     for field in string.gmatch(s, string.format("([^%s]+)", sep)) do
@@ -42,7 +44,7 @@ function M.split(s, sep)
 end
 
 ---@param s string
----@returns string[]
+---@return string[]
 function M.lines(s)
     local result = {}
     for line in string.gmatch(s .. "\n", "(.-)\n") do
@@ -57,7 +59,7 @@ end
 ---@field stderr string | nil
 
 ---@param command string
----@returns CmdResult
+---@return CmdResult
 function M.exec_cmd(command)
     local tmpfile = os.tmpname()
     local exit = os.execute(command .. ' > ' .. tmpfile .. ' 2> ' .. tmpfile .. '.err')
@@ -95,7 +97,7 @@ end
 ---@param triple_b string[]
 ---@param triple_a string[]
 ---@param digit "major"|"minor"|"patch"
----@returns "greater"|"equal"|"smaller"
+---@return "greater"|"equal"|"smaller"
 local function cmp_semver_version_digit(triple_a, triple_b, digit)
     ---@type integer
     local idx
@@ -126,7 +128,7 @@ end
 --- Compare 2 semantic version strings of the form x.y.z
 ---@param a string
 ---@param b string
----@returns "greater"|"equal"|"smaller"
+---@return "greater"|"equal"|"smaller"
 function M.cmp_semver_version(a, b)
     local triple_a = M.split(a, ".");
     assert(#triple_a == 3, "semantic version string '" .. a .. "' is not of the form 'x.y.z'")
@@ -145,6 +147,31 @@ function M.cmp_semver_version(a, b)
     end
 
     return cmp_semver_version_digit(triple_a, triple_b, "patch")
+end
+
+function M.fetch_wiki_metadata()
+    local res = M.exec_cmd("archwiki-rs info -o -d")
+    local dir = string.gsub(res.stdout, "\n$", "")
+    local path = dir .. "/pages.yml"
+
+    local f = io.open(path, "r")
+    if f ~= nil then
+        io.close(f)
+        return
+    end
+
+    job:new({
+        command = "archwiki-rs",
+        args = { "sync-wiki", "-H" },
+        on_start = function()
+            vim.notify("Fetching ArchWiki metadata", vim.log.levels.INFO)
+        end,
+        on_exit = function(_, code)
+            if code ~= 0 then
+                vim.notify("Failed to fetch ArchWiki metadata", vim.log.levels.WARN)
+            end
+        end
+    }):start()
 end
 
 return M
