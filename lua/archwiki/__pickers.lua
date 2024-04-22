@@ -46,11 +46,12 @@ function M.page_picker(opts)
                 local function on_success(bufnr)
                     Config.page.handle_buf(bufnr)
                 end
-                local function on_err()
-                    vim.notify("Failed to load page '" .. selection .. "'", vim.log.levels.WARN)
+                local function on_err(err)
+                    Logger.warn("Failed to load page '" .. selection .. "'")
+                    Logger.error(err)
                 end
 
-                vim.notify("Loading page '" .. selection .. "'", vim.log.levels.INFO)
+                Logger.info("Loading page '" .. selection .. "'")
                 read_page.read_page_raw(selection, on_success, on_err)
             end)
 
@@ -90,6 +91,7 @@ function M.debounced_search(args, on_select, opts)
         results.current       = results.fetched
         new_results_available = false
         picker:refresh()
+        Logger.trace("displayed search results updated")
     end
 
     local function on_prompt_line_change(text)
@@ -119,6 +121,7 @@ function M.debounced_search(args, on_select, opts)
                         if parsed and picker and #parsed ~= 0 then
                             results.fetched       = parsed
                             new_results_available = true
+                            Logger.trace("new search results loaded")
 
                             if #results.current == 0 then
                                 update_current_items()

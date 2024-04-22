@@ -17,6 +17,8 @@ local M = {}
 ---@param on_err function
 ---@param extra string[]|nil
 function M.read_page_raw(page, on_success, on_err, extra)
+    Logger.trace("running 'archwiki-rs read-page' with page '" .. page .. "'")
+
     local stdout = ""
     local args = utils.array_join({ "read-page", page, "--format", Config.page.format }, extra or {})
 
@@ -86,7 +88,7 @@ function M.previewer(opts)
 end
 
 ---Read a page from the ArchWiki.
----@param page string
+---@param page string|nil
 function M.read_page(page)
     if page == nil or #page == 0 then
         page = vim.fn.input("page name: ")
@@ -110,15 +112,15 @@ function M.read_page(page)
                 Config.pickers.similar_pages(similar,
                     { prompt_title = "Search similar pages", results_title = "Similar Pages" })
             else
-                vim.notify('No pages similar to "' .. page .. '" were found', vim.log.levels.WARN)
+                Logger.warn('No pages similar to "' .. page .. '" were found')
             end
         else
-            vim.notify("Failed to load page '" .. page .. "'", vim.log.levels.WARN)
-            Logger.debug(err)
+            Logger.warn("Failed to load page '" .. page .. "'")
+            Logger.error(err)
         end
     end
 
-    vim.notify("Loading page '" .. page .. "'", vim.log.levels.INFO)
+    Logger.info("Loading page '" .. page .. "'")
     M.read_page_raw(page, on_success, on_err)
 end
 

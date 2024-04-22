@@ -23,7 +23,7 @@ Logger = log:new()
 
 ---@type Config
 Config = {
-    log_level = "off",
+    log_level = "error",
     page      = {
         format = "markdown",
         show_similar = true,
@@ -36,14 +36,3 @@ Config = {
         reload_search = "<S-r>"
     }
 }
-
-local M = {}
-
-
----@param cfg table
-function M.setup(cfg)
-    Config = vim.tbl_deep_extend("force", Config, cfg)
-    Logger.level = Config.log_level
-end
-
-return M

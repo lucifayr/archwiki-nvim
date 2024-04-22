@@ -66,8 +66,8 @@ vim.keymap.set('n', '<leader>asl', function() require("archwiki").local_search()
 -- All available config options and their defaults
 require('archwiki').setup({
     -- 'plenary.nvim' log level. 
-    -- Valid options: ["off", "trace", "debug", "info", "warn", "error", "fatal"]
-    log_level = "off",
+    -- Valid options: ["trace", "debug", "info", "warn", "error", "fatal"]
+    log_level = "error",
     page = {
         -- Format argument passed to 'archwiki-rs read-page'. See 'archwiki-rs help read-page' for more information
         --  Valid options: ["plain-text", "markdown", "html"]

@@ -24,11 +24,12 @@ local function build_on_select(on_success, on_err)
             Config.page.handle_buf(bufnr)
         end
 
-        local function default_on_err()
-            vim.notify("Failed to load page '" .. selection .. "'", vim.log.levels.WARN)
+        local function default_on_err(err)
+            Logger.warn("Failed to load page '" .. selection .. "'")
+            Logger.error(err)
         end
 
-        vim.notify("Loading page '" .. selection .. "'", vim.log.levels.INFO)
+        Logger.info("Loading page '" .. selection .. "'")
         read_page.read_page_raw(selection, on_success or default_on_success, on_err or default_on_err)
     end
 end
@@ -41,6 +42,8 @@ function M.text_search()
     local function on_select_success(bufnr)
         Config.page.handle_buf(bufnr)
         if lineMatchIdx then
+            Logger.trace("going to exact match for text search in buffer with ID " ..
+                bufnr .. ' at line ' .. lineMatchIdx)
             vim.api.nvim_buf_call(bufnr, function()
                 vim.cmd(":" .. lineMatchIdx)
                 vim.cmd("norm zz")
@@ -71,6 +74,8 @@ function M.text_search()
                 end
 
                 if lineMatchIdx then
+                    Logger.trace("found exact match for text search in preview buffer with ID " ..
+                        bufnr .. ' at line ' .. lineMatchIdx)
                     vim.api.nvim_buf_call(bufnr, function()
                         vim.cmd(":" .. lineMatchIdx)
                         vim.cmd("norm zz")
