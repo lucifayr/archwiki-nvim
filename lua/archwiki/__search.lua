@@ -25,11 +25,11 @@ local function build_on_select(on_success, on_err)
         end
 
         local function default_on_err(err)
-            Logger.warn("Failed to load page '" .. selection .. "'")
-            Logger.error(err)
+            WikiLogger.warn("Failed to load page '" .. selection .. "'")
+            WikiLogger.error(err)
         end
 
-        Logger.info("Loading page '" .. selection .. "'")
+        WikiLogger.info("Loading page '" .. selection .. "'")
         read_page.read_page_raw(selection, on_success or default_on_success, on_err or default_on_err)
     end
 end
@@ -42,7 +42,7 @@ function M.text_search()
     local function on_select_success(bufnr)
         Config.page.handle_buf(bufnr)
         if lineMatchIdx then
-            Logger.trace("going to exact match for text search in buffer with ID " ..
+            WikiLogger.trace("going to exact match for text search in buffer with ID " ..
                 bufnr .. ' at line ' .. lineMatchIdx)
             vim.api.nvim_buf_call(bufnr, function()
                 vim.cmd(":" .. lineMatchIdx)
@@ -74,7 +74,7 @@ function M.text_search()
                 end
 
                 if lineMatchIdx then
-                    Logger.trace("found exact match for text search in preview buffer with ID " ..
+                    WikiLogger.trace("found exact match for text search in preview buffer with ID " ..
                         bufnr .. ' at line ' .. lineMatchIdx)
                     vim.api.nvim_buf_call(bufnr, function()
                         vim.cmd(":" .. lineMatchIdx)

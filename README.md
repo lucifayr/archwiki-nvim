@@ -65,9 +65,13 @@ vim.keymap.set('n', '<leader>asl', function() require("archwiki").local_search()
 ```lua
 -- All available config options and their defaults
 require('archwiki').setup({
-    -- 'plenary.nvim' log level. 
-    -- Valid options: ["trace", "debug", "info", "warn", "error", "fatal"]
-    log_level = "error",
+    logging  = {
+        -- 'plenary.nvim' log level. 
+        -- Valid options: ["trace", "debug", "info", "warn", "error", "fatal"]
+        level = "info",
+        -- Show source file and line numbers for logs 
+        detailed = false,
+    },
     page = {
         -- Format argument passed to 'archwiki-rs read-page'. See 'archwiki-rs help read-page' for more information
         --  Valid options: ["plain-text", "markdown", "html"]

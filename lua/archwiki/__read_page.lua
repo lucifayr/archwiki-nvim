@@ -17,7 +17,7 @@ local M = {}
 ---@param on_err function
 ---@param extra string[]|nil
 function M.read_page_raw(page, on_success, on_err, extra)
-    Logger.trace("running 'archwiki-rs read-page' with page '" .. page .. "'")
+    WikiLogger.trace("running 'archwiki-rs read-page' with page '" .. page .. "'")
 
     local stdout = ""
     local args = utils.array_join({ "read-page", page, "--format", Config.page.format }, extra or {})
@@ -112,15 +112,15 @@ function M.read_page(page)
                 Config.pickers.similar_pages(similar,
                     { prompt_title = "Search similar pages", results_title = "Similar Pages" })
             else
-                Logger.warn('No pages similar to "' .. page .. '" were found')
+                WikiLogger.warn('No pages similar to "' .. page .. '" were found')
             end
         else
-            Logger.warn("Failed to load page '" .. page .. "'")
-            Logger.error(err)
+            WikiLogger.warn("Failed to load page '" .. page .. "'")
+            WikiLogger.error(err)
         end
     end
 
-    Logger.info("Loading page '" .. page .. "'")
+    WikiLogger.info("Loading page '" .. page .. "'")
     M.read_page_raw(page, on_success, on_err)
 end
 

@@ -4,6 +4,8 @@ local utils = require("archwiki.__utils")
 local read_page = require("archwiki.__read_page")
 local search = require("archwiki.__search")
 
+local log = require("plenary.log")
+
 local M = {}
 
 local min_version = "3.2.0"
@@ -12,7 +14,22 @@ local max_version = nil
 ---@param cfg table
 function M.setup(cfg)
     Config = vim.tbl_deep_extend("force", Config, cfg or {})
-    Logger.level = Config.log_level
+
+    WikiLogger = log:new()
+    WikiLogger.plugin = "archwiki-nvim"
+    WikiLogger.level = Config.logging.level
+
+    if not Config.logging.detailed then
+        WikiLogger.fmt_msg = function(is_console, mode_name, _, _, msg)
+            local name_upper = mode_name:upper()
+            if is_console then
+                return string.format("%s: %s", name_upper, msg)
+            else
+                return string.format("%s: %s\n", name_upper, msg)
+            end
+        end
+    end
+
 
     local res = utils.exec_cmd('archwiki-rs -V')
     if not res.success then
@@ -20,7 +37,7 @@ function M.setup(cfg)
             "Install the cli tool by running 'cargo install archwiki-rs'\n" ..
             "or reference 'https://gitlab.com/Jackboxx/archwiki-rs/-/blob/main/README.md' for other installation options."
 
-        Logger.fatal(msg)
+        WikiLogger.fatal(msg)
         return
     end
 
@@ -39,7 +56,7 @@ function M.setup(cfg)
                 "Current version " .. version .. "\n" ..
                 "Minimum version " .. min_version
 
-            Logger.warn(msg)
+            WikiLogger.warn(msg)
         end
     end
 
@@ -50,7 +67,7 @@ function M.setup(cfg)
                 "Current version " .. version .. "\n" ..
                 "Maximum version " .. max_version
 
-            Logger.warn(msg)
+            WikiLogger.warn(msg)
         end
     end
 

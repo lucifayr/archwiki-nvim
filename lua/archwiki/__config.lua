@@ -1,14 +1,11 @@
 local pickers = require("archwiki.__pickers")
 local read_page = require("archwiki.__read_page")
 
-local log = require("plenary.log")
-Logger = log:new()
-
 ---@class Config
 ---@field page ConfigPage
 ---@field pickers ConfigPickers
 ---@field mappings ConfigMappings
----@field log_level string
+---@field logging ConfigLogging
 
 ---@class ConfigPage
 ---@field format string
@@ -20,19 +17,26 @@ Logger = log:new()
 
 ---@class ConfigMappings
 ---@field reload_search string
+--
+---@class ConfigLogging
+---@field level "trace"|"debug"|"info"|"warn"|"error"|"fatal"
+---@field detailed boolean
 
 ---@type Config
 Config = {
-    log_level = "error",
-    page      = {
+    page     = {
         format = "markdown",
         show_similar = true,
         handle_buf = read_page.handle_buf
     },
-    pickers   = {
+    pickers  = {
         similar_pages = pickers.page_picker_itemized,
     },
-    mappings  = {
+    mappings = {
         reload_search = "<S-r>"
-    }
+    },
+    logging  = {
+        level = "info",
+        detailed = false,
+    },
 }

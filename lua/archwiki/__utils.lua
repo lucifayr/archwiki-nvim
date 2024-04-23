@@ -42,9 +42,9 @@ end
 function M.exec_cmd(command)
     local tmpfile = os.tmpname()
 
-    Logger.trace("executing command " .. command)
-    Logger.trace("stdout sent to " .. tmpfile)
-    Logger.trace("stdderr sent to " .. tmpfile .. ".err")
+    WikiLogger.trace("executing command " .. command)
+    WikiLogger.trace("stdout sent to " .. tmpfile)
+    WikiLogger.trace("stdderr sent to " .. tmpfile .. ".err")
 
     local exit = os.execute(command .. ' > ' .. tmpfile .. ' 2> ' .. tmpfile .. '.err')
 
@@ -71,7 +71,7 @@ function M.exec_cmd(command)
         stderr_file:close()
     end
 
-    Logger.trace("command '" .. command .. "'" .. "exited with code " .. exit)
+    WikiLogger.trace("command '" .. command .. "'" .. "exited with code " .. exit)
     return {
         success = exit == 0,
         stdout = stdout,
@@ -119,11 +119,11 @@ function M.cmp_semver_version(smvr_string_a, smvr_string_b)
     local b = vim.trim(smvr_string_b)
 
     local triple_a = vim.split(a, ".", { plain = true });
-    Logger.trace("parsed smvr triple as: ", triple_a)
+    WikiLogger.trace("parsed smvr triple as: ", triple_a)
     assert(#triple_a == 3, "semantic version string '" .. a .. "' is not of the form 'x.y.z'")
 
     local triple_b = vim.split(a, ".", { plain = true });
-    Logger.trace("parsed smvr triple as: ", triple_b)
+    WikiLogger.trace("parsed smvr triple as: ", triple_b)
     assert(#triple_b == 3, "semantic version string '" .. b .. "' is not of the form 'x.y.z'")
 
     local ord_major = cmp_semver_version_digit(triple_a, triple_b, "major")
@@ -156,11 +156,11 @@ function M.fetch_wiki_metadata()
         command = "archwiki-rs",
         args = { "sync-wiki", "-H" },
         on_start = function()
-            Logger.info("Fetching ArchWiki metadata")
+            WikiLogger.info("Fetching ArchWiki metadata")
         end,
         on_exit = function(_, code)
             if code ~= 0 then
-                Logger.info("Failed to fetch ArchWiki metadata")
+                WikiLogger.info("Failed to fetch ArchWiki metadata")
             end
         end
     }):start()
