@@ -2,9 +2,7 @@
 
 Have any ArchWiki page available instantly.
 
-<!-- TODO: convert to mp4 -->
-
-![preview](./preview.gif)
+![preview](./preview.mp4)
 
 <!--toc:start-->
 - [Dependencies](#dependencies)
