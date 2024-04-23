@@ -30,7 +30,7 @@ Installation instructions are available [here](https://gitlab.com/jackboxx/archw
 
 ```lua
 use {
-    'Jackboxx/archwiki-nvim',
+    'https://gitlab.com/Jackboxx/archwiki-nvim',
     requires = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' }
 }
 ```
@@ -39,7 +39,7 @@ use {
 
 ```lua
 {
-    'Jackboxx/archwiki-nvim',
+    'https://gitlab.com/Jackboxx/archwiki-nvim',
     dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' }
 }
 ```
@@ -49,7 +49,7 @@ use {
 ```
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-lua/plenary.nvim'
-Plug 'Jackboxx/archwiki-nvim'
+Plug 'https://gitlab.com/Jackboxx/archwiki-nvim'
 ```
 
 ## Usage
