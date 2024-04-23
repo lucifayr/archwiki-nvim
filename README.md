@@ -4,7 +4,10 @@ Have any ArchWiki page available instantly.
 
 ![](./preview.mp4)
 
+## Table of contents
+
 <!--toc:start-->
+
 - [Dependencies](#dependencies)
 - [Installation](#installation)
   - [Packer](#packer)
@@ -14,7 +17,7 @@ Have any ArchWiki page available instantly.
 - [Config](#config)
   - [Custom page handling - Open page in split window](#custom-page-handling-open-page-in-split-window)
   - [Custom similar page picker - No preview](#custom-similar-page-picker-no-preview)
-<!--toc:end-->
+  <!--toc:end-->
 
 ## Dependencies
 
@@ -64,10 +67,10 @@ vim.keymap.set('n', '<leader>asl', function() require("archwiki").local_search()
 -- All available config options and their defaults
 require('archwiki').setup({
     logging  = {
-        -- 'plenary.nvim' log level. 
+        -- 'plenary.nvim' log level.
         -- Valid options: ["trace", "debug", "info", "warn", "error", "fatal"]
         level = "info",
-        -- Show source file and line numbers for logs 
+        -- Show source file and line numbers for logs
         detailed = false,
     },
     page = {
@@ -119,7 +122,7 @@ local finders  = require("telescope.finders")
 
 archwiki.setup({
     pickers = {
-        similar_pages = function (items) 
+        similar_pages = function (items)
             pickers.new({}, {
                 prompt_title = "Similar Pages",
                 results_title = "Search Similar pages",
