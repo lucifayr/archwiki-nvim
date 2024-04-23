@@ -2,7 +2,7 @@
 
 Have any ArchWiki page available instantly.
 
-![preview](./preview.mp4)
+![](./preview.mp4)
 
 <!--toc:start-->
 - [Dependencies](#dependencies)
