@@ -11,9 +11,8 @@ local min_version = "3.2.0"
 local max_version = nil
 
 local function warn_no_setup()
-    vim.notify("You have to call 'require(\"archwiki\").setup()' before you can run this function")
+    vim.notify("You have to call 'require(\"archwiki\").setup()' before you can run this function", vim.log.levels.ERROR)
 end
-
 
 local M = {}
 M.config = Config
@@ -23,6 +22,7 @@ M.read_page_raw = warn_no_setup
 M.text_search = warn_no_setup
 M.page_search = warn_no_setup
 M.local_search = warn_no_setup
+
 
 ---@param cfg table
 function M.setup(cfg)
