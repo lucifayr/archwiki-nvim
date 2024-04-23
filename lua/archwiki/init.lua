@@ -6,10 +6,23 @@ local search = require("archwiki.__search")
 
 local log = require("plenary.log")
 
-local M = {}
 
 local min_version = "3.2.0"
 local max_version = nil
+
+local function warn_no_setup()
+    vim.notify("You have to call 'require(\"archwiki\").setup()' before you can run this function")
+end
+
+
+local M = {}
+M.config = Config
+
+M.read_page = warn_no_setup
+M.read_page_raw = warn_no_setup
+M.text_search = warn_no_setup
+M.page_search = warn_no_setup
+M.local_search = warn_no_setup
 
 ---@param cfg table
 function M.setup(cfg)
@@ -46,7 +59,6 @@ function M.setup(cfg)
     M.text_search = search.text_search
     M.page_search = search.page_title_search
     M.local_search = search.local_page_search
-    M.config = Config
 
     local version = string.gsub(res.stdout, "archwiki%-rs ", "");
     if min_version then
