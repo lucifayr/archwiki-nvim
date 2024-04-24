@@ -55,10 +55,20 @@ Plug 'https://gitlab.com/Jackboxx/archwiki-nvim'
 ## Usage
 
 ```lua
+-- Prompts you for a page name and fetches the matching page if any exists.
 vim.keymap.set('n', '<leader>ar', function() require("archwiki").read_page() end)
+
+-- Opens a telescope picker that searches the ArchWiki based on page text.
 vim.keymap.set('n', '<leader>ast', function() require("archwiki").text_search() end)
+
+-- Opens a telescope picker that searches the ArchWiki based on page titles.
 vim.keymap.set('n', '<leader>asp', function() require("archwiki").page_search() end)
+
+-- Opens a telescope picker that lists all ArchWiki page titles.
 vim.keymap.set('n', '<leader>asl', function() require("archwiki").local_search() end)
+
+-- Opens a telescope picker that shows cached pages and allows you to delete caches using multi select.
+vim.keymap.set('n', '<leader>ac', function() require("archwiki").cached_pages() end)
 ```
 
 ## Config
@@ -82,7 +92,7 @@ require('archwiki').setup({
     },
     mappings = {
         -- Keymap to display new search results when using 'text_search' or 'page_search'.
-        reload_search = "<S-r>"
+        reload_search = "<C-r>"
     },
     logging  = {
         -- 'plenary.nvim' log level.

@@ -33,7 +33,7 @@ Config = {
         similar_pages = pickers.page_picker_itemized,
     },
     mappings = {
-        reload_search = "<S-r>"
+        reload_search = "<C-r>"
     },
     logging  = {
         level = "info",
