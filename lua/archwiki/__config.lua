@@ -8,7 +8,7 @@ local read_page = require("archwiki.__read_page")
 ---@field logging ConfigLogging
 
 ---@class ConfigPage
----@field format string
+---@field format "plain-text"|"markdown"|"html"
 ---@field show_similar boolean
 ---@field handle_buf function
 

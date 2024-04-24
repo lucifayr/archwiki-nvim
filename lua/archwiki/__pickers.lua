@@ -175,4 +175,89 @@ function M.debounced_search(args, on_select, opts)
     picker:find()
 end
 
+function M.cached_pages()
+    local res = utils.exec_cmd('archwiki-rs info -c -o')
+    if not res.success then
+        WikiLogger.error('Failed to find cache directory')
+        WikiLogger.debug(res)
+        return
+    end
+    local cache_dir = vim.trim(res.stdout)
+
+    local files = vim.fs.find(function(name)
+        if Config.page.format == "markdown" then
+            return name:match(".*%.md$")
+        elseif Config.page.format == 'html' then
+            return name:match(".*%.html$")
+        end
+
+        return true
+    end, {
+        type = 'file',
+        path = cache_dir,
+        limit = math.huge,
+    })
+
+    if #files == 0 then
+        WikiLogger.info("Found no cached pages for format '" .. Config.page.format .. "'")
+        return
+    end
+
+    pickers.new({}, {
+        prompt_title = "Search local page caches (" .. Config.page.format .. ")",
+        results_title = "Files",
+        finder = finders.new_table({
+            results = files,
+            entry_maker = function(entry)
+                local filename = vim.fs.basename(entry)
+                if Config.page.format == "markdown" then
+                    filename = filename:gsub(".md$", "")
+                elseif Config.page.format == "html" then
+                    filename = filename:gsub(".html$", "")
+                end
+
+                return {
+                    value = entry,
+                    display = filename,
+                    ordinal = filename,
+
+                }
+            end
+        }),
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(prompt_bufnr)
+            actions.select_default:replace(function()
+                local picker = action_state.get_current_picker(prompt_bufnr)
+                local entries = picker:get_multi_selection()
+
+                if #entries == 0 then
+                    entries = { picker:get_selection() }
+                end
+
+                local entry_str = "entries"
+                if #entries == 1 then
+                    entry_str = "entry"
+                end
+
+                local confirmation = vim.fn.input({
+                    prompt = "Delete " .. #entries .. " cache " .. entry_str .. " [y/n]: ",
+                })
+
+                if vim.tbl_contains({ 'yes', 'y' }, confirmation:lower()) then
+                    actions.close(prompt_bufnr)
+                    for _, entry in pairs(entries) do
+                        WikiLogger.trace("deleting file based on entry value: " .. vim.inspect(entry))
+                        os.remove(entry.value)
+                    end
+                elseif vim.tbl_contains({ 'no', 'n' }, confirmation:lower()) then
+                    actions.close(prompt_bufnr)
+                else
+                    WikiLogger.info('Invalid confirmation input')
+                end
+            end)
+            return true
+        end,
+    }):find()
+end
+
 return M

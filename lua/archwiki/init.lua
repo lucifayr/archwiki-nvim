@@ -3,6 +3,7 @@ require("archwiki.__config")
 local utils = require("archwiki.__utils")
 local read_page = require("archwiki.__read_page")
 local search = require("archwiki.__search")
+local pickers = require("archwiki.__pickers")
 
 local log = require("plenary.log")
 
@@ -22,6 +23,7 @@ M.read_page_raw = warn_no_setup
 M.text_search = warn_no_setup
 M.page_search = warn_no_setup
 M.local_search = warn_no_setup
+M.cached_pages = warn_no_setup
 
 
 ---@param cfg table
@@ -59,6 +61,7 @@ function M.setup(cfg)
     M.text_search = search.text_search
     M.page_search = search.page_title_search
     M.local_search = search.local_page_search
+    M.cached_pages = pickers.cached_pages
 
     local version = string.gsub(res.stdout, "archwiki%-rs ", "");
     if min_version then
